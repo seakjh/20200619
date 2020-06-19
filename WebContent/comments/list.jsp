@@ -1,4 +1,12 @@
+<%@page import="com.study.model.news.News"%>
+<%@page import="java.util.List"%>
+<%@page import="com.study.model.news.NewsDAO"%>
 <%@ page contentType="text/html; charset=UTF-8"%>
+<%! NewsDAO newsDAO = new NewsDAO();%>
+<%
+	//목록 가져오기
+	List<News> newslist = newsDAO.selectAll();
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,6 +31,12 @@ th, td {
 tr:nth-child(even) {
 	background-color: #f2f2f2;
 }
+a {
+	text-decoration: none;
+}
+a:hover {
+	color: #f00;
+}
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
@@ -37,19 +51,23 @@ $(function() {
 <body>
 	<table>
 		<tr>
-			<th>No</th>
-			<th>제목</th>
-			<th>작성자</th>
-			<th>등록일</th>
-			<th>조회수</th>
+			<th width="5%">No</th>
+			<th width="60%">제목</th>
+			<th width="10%">작성자</th>
+			<th width="15%">등록일</th>
+			<th width="10%">조회수</th>
 		</tr>
+		<%int total = newslist.size(); %>
+		<%for (int i=0; i<newslist.size(); i++) {%>
+		<%News news = newslist.get(i); %>
 		<tr>
-			<td>Jill</td>
-			<td>Smith</td>
-			<td>50</td>
-			<td>50</td>
-			<td>50</td>
+			<td><%=total-- %></td>
+			<td><a href="/comments/content.jsp?news_id=<%=news.getNews_id() %>"><%=news.getTitle() %>&nbsp;[<%=news.getCnt() %>]</a></td>
+			<td><%=news.getWriter()%></td>
+			<td><%=news.getRegdate().substring(0, 10) %></td>
+			<td><%=news.getHit() %></td>
 		</tr>
+		<%} %>
 		<tr>
 			<td colspan="5">
 				<button onClick="location.href='/comments/registForm.jsp';">글 등록</button>

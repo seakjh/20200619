@@ -7,6 +7,7 @@ public class News {
 	private String content;
 	private String regdate;
 	private int hit;
+	private int cnt; //게시물의 댓글 수를 담을 변수
 	//
 	public int getNews_id() {
 		return news_id;
@@ -43,6 +44,12 @@ public class News {
 	}
 	public void setHit(int hit) {
 		this.hit = hit;
+	}
+	public int getCnt() {
+		return cnt;
+	}
+	public void setCnt(int cnt) {
+		this.cnt = cnt;
 	}
 	
 }
