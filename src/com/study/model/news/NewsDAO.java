@@ -104,11 +104,62 @@ public class NewsDAO {
 				news.setHit(rs.getInt("hit"));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			manager.freeConnection(con, pstmt, rs);
 		}
 		return news;
+	}
+	
+	//한 건 수정
+	public int edit(News news) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		int result = 0;
+		
+		String sql = "update news set title=?, writer=?, content=?";
+		sql += " where news_id=?";
+		
+		con = manager.getConnection();
+		
+		try {
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, news.getTitle());
+			pstmt.setString(2, news.getWriter());
+			pstmt.setString(3, news.getContent());
+			pstmt.setInt(4, news.getNews_id());
+			
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			manager.freeConnection(con, pstmt);
+		}
+		return result;
+	}
+	
+	//한 건 삭제된 것처럼 보이게하기
+	public int delete(News news) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		int result=0;
+		
+		String sql = "update news set title=? where news_id=?";
+		news.setTitle("삭제된게시글입니다..");
+		con = manager.getConnection();
+		
+		try {
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, news.getTitle());
+			pstmt.setInt(2, news.getNews_id());
+			
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			manager.freeConnection(con, pstmt);
+		}
+		
+		return result;
 	}
 }

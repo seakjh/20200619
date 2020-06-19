@@ -62,7 +62,11 @@ $(function() {
 		<%News news = newslist.get(i); %>
 		<tr>
 			<td><%=total-- %></td>
+			<%if (news.getTitle().equals("삭제된게시글입니다..")) { %>
+			<td><%=news.getTitle() %>&nbsp;[<%=news.getCnt() %>]</td>
+			<%} else { %>
 			<td><a href="/comments/content.jsp?news_id=<%=news.getNews_id() %>"><%=news.getTitle() %>&nbsp;[<%=news.getCnt() %>]</a></td>
+			<%} %>
 			<td><%=news.getWriter()%></td>
 			<td><%=news.getRegdate().substring(0, 10) %></td>
 			<td><%=news.getHit() %></td>

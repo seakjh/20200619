@@ -78,23 +78,31 @@ input[type=button]:hover {
 $(function() {
 	CKEDITOR.replace('content');
 	
-	//등록버튼
+	//수정
 	$($("input[type='button']")[0]).click(function() {
-		//글 등록을 서버에 요청한다! (jsp or servlet)
-		$("form").attr({
-			"action":"/comments/regist.jsp",
+		$($("form")[0]).attr({
+			"action":"/comments/edit.jsp", 
 			"method":"post"
 		})
-		$("form").submit();
+		$($("form")[0]).submit();
 	});
 	
 	//목록버튼
 	$($("input[type='button']")[1]).click(function() {
 		location.href="/comments/list.jsp";
 	});
+
+	//삭제
+	$($("input[type='button']")[2]).click(function() {
+		$($("form")[0]).attr({
+			"action":"/comments/delete.jsp",
+			"method":"post"
+		})
+		$($("form")[0]).submit();
+	});
 	
 	//덧글 등록버튼
-	$($("input[type='button']")[2]).click(function() {
+	$($("input[type='button']")[3]).click(function() {
 		//서버에 덧글 등록 요청
 		$($("form")[1]).attr({
 			"method":"post",
@@ -111,11 +119,13 @@ $(function() {
 
 	<div class="container">
 		<form>
+			<input type="hidden" name="news_id" value="<%=news.getNews_id()%>">
 			<input type="text" id="fname"	name="title" value="<%=news.getTitle()%>"> 
 			<input type="text" id="lname"	name="writer" value="<%=news.getWriter()%>">
 			<textarea id="content" name="content" style="height: 200px"><%=news.getContent()%></textarea>
-			<input type="button" value="등록">
+			<input type="button" value="수정">
 			<input type="button" value="목록">
+			<input type="button" value="삭제">
 		</form>
 	</div>
 	
