@@ -16,11 +16,13 @@ body {
 </style>
 <script type="text/javascript">
 var map;
+var lati1;
+var longi1;
 
 function initMap() {
 	console.log("부모 json :"+parent.json);
 	var mapProp= {
-	  center:new google.maps.LatLng(37.571252, 126.989102),
+	  center:new google.maps.LatLng(parent.lati1, parent.longi1),
 	  zoom:10,
 	};
 	map = new google.maps.Map(document.getElementById("mapArea"),mapProp);

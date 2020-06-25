@@ -54,6 +54,9 @@ table, td {
 var json = {
 		"storeList":[]
 }; //iframe이 접근할 수 있게 하기 위함
+var lati1 = 37.571252;
+var longi1 = 126.989102;
+
 addEventListener("load", function() {	
 	//비동기통신으로, 아이콘 가져오기!
 	getIcons();
@@ -62,7 +65,7 @@ addEventListener("load", function() {
 
 function getIcons() {
 	var httpObj = new XMLHttpRequest(); //비동기 통신 객체
-	
+
 	httpObj.onreadystatechange = function() {
 		if(this.readyState == 4 && this.status == 200) {
 			//alert("서버가 전송한 메세지 : "+ this.responseText);
@@ -151,7 +154,7 @@ function printData(json) {
 	tag += "</tr>";
 	for (var i=0; i<json.storeList.length; i++) {
 		var obj = json.storeList[i];
-		tag += "<tr onClick='getDetail("+obj.store_id+")' style='cursor:pointer;' onMouseOver=\"this.style.background='#fcc'\" onMouseOut=\"this.style.background=''\">";
+		tag += "<tr onClick='getDetail("+obj.store_id+","+obj.lati+","+obj.longi+")' style='cursor:pointer;' onMouseOver=\"this.style.background='#fcc'\" onMouseOut=\"this.style.background=''\">";
 		tag += "<td>"+obj.store_id+"</td>";
 		tag += "<td><a style='color:red'>"+obj.name+"</a></td>";
 		tag += "<td>"+obj.addr+"</td>";
@@ -180,19 +183,25 @@ function mapMarker(obj) {
 	marker.setMap(map);//마커를 지정한 맵에 적용!!
 }
 
-function getDetail(store_id) {
+function getDetail(store_id, lati2, longi2) {
+	lati1 = lati2;
+	longi1 = longi2;
+	//지도 프레임을 새로고침하자!
+	var mapFrame = document.getElementById("mapFrame");
+	mapFrame.src="/store2/map.html";
+	
 	var httpObj = new XMLHttpRequest();
 	httpObj.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			var json = JSON.parse(this.responseText);
-			showData(json);
+			var json2 = JSON.parse(this.responseText);
+			showData(json2);
 		}
 	};
 	httpObj.open("get", "/store2/content.jsp?store_id="+store_id, true);
 	httpObj.send();
 }
 
-function showData(json) {
+function showData(json2) {
 	var store_id = document.getElementById("store_id");
 	var name = document.getElementById("name2");
 	var addr = document.getElementById("addr2");
@@ -201,13 +210,13 @@ function showData(json) {
 	var icons_id = document.getElementById("icons_id2");
 	var memo = document.getElementById("memo2");
 	
-	store_id.value = json.store_id;
-	name.value = json.name;
-	addr.value = json.addr;
-	lati.value = json.lati;
-	longi.value = json.longi;
-	icons_id.value = json.icons_id;
-	memo.value = json.memo;
+	store_id.value = json2.store_id;
+	name.value = json2.name;
+	addr.value = json2.addr;
+	lati.value = json2.lati;
+	longi.value = json2.longi;
+	icons_id.value = json2.icons.icons_id;
+	memo.value = json2.memo;
 }
 
 function del() {
@@ -226,7 +235,7 @@ function del() {
 				alert("삭제실패");				
 			}
 		}
-	}
+	};
 	httpObj.send();
 }
 
@@ -252,15 +261,52 @@ function edit() {
 				alert("수정실패");				
 			}
 		}
-	}
+	};
 	httpObj.send("store_id="+store_id+"&name="+name+"&addr="+addr+"&lati="+lati+"&longi="+longi+"&icons_id="+icons_id+"&memo="+memo);
 }
 
+//상품의 정보를 json 파일로 준비해놓고 대량으로 등록하기!
+//클라이언트에서는 서버로  json 파일을 업로드만 하면됨
+//비동기의 업로드처리
+function uploadJson() {
+	//동기방식에서는 업로드시 form의 요소에
+	//Encoding multipart/form-data 지정되어 있어야 함
+	//but 비동기 방식에서는 formData() 객체를 이용해야 함
+   
+   	//매개변수로 form을 넣어야함
+   	var fileForm = document.getElementById("fileForm");
+   	var formData = new FormData(fileForm);
+   
+   	//생성된 formData에 파라미터 역할을 할 컴포넌트 추가!
+   	formData.append("mf", document.getElementById("mf"));
+   
+   	//비동기 전송
+	var httpObj = new XMLHttpRequest();
+	httpObj.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			if (this.responseText == 1) {
+				alert("성공?");
+				//목록나오게
+				getList();
+				
+				//지도나오게
+				var mapFrame = document.getElementById("mapFrame");
+				mapFrame.src="/store2/map.html";
+			}
+			else {
+				alert("업로드 실패!");				
+			}
+		}
+	};
+	httpObj.open("post", "/upload/json", true);
+	httpObj.send(formData);   
+}
 </script>
 </head>
 <body>
 	<div class="wrapper">
 		<div class="registArea">
+			<form id="fileForm">
 			<input type="text" id="name" placeholder="맛집명">
 			<input type="text" id="addr" placeholder="주소">
 			<input type="text" id="lati" placeholder="위도">
@@ -269,6 +315,15 @@ function edit() {
 			<textarea type="text" id="memo" placeholder="설명" rows="5" cols="22"></textarea>
 			<button onclick="regist()">등록</button>
 			<button onclick="getList()">목록</button>
+			
+			<p>&nbsp;</p>
+			<!-- 대량 등록 관련 -->
+				<input type="file" name="myFile" id="mf">
+			</form>
+			<p>&nbsp;</p>
+			<button onclick="uploadJson()">JSON</button>
+			<button onclick="uploadExcel()">Excel</button>
+			<button onclick="uploadXml()">XML</button>
 		</div>
 		
 		<div class="contentArea">

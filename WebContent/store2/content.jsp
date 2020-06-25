@@ -17,8 +17,13 @@
 		sb.append("\"addr\":\""+store.getAddr()+"\",");
 		sb.append("\"lati\":"+store.getLati()+",");
 		sb.append("\"longi\":"+store.getLongi()+",");
-		sb.append("\"icons_id\":"+store.getIcons().getIcons_id()+",");
-		sb.append("\"filename\":\""+store.getIcons().getFilename()+"\",");
+
+		sb.append("\"icons\":{");
+			sb.append("\"icons_id\":"+store.getIcons().getIcons_id()+",");
+			sb.append("\"title\":\""+store.getIcons().getTitle()+"\",");
+			sb.append("\"filename\":\""+store.getIcons().getFilename()+"\"");
+		sb.append("},");
+		
 		sb.append("\"memo\":\""+store.getMemo()+"\"");
 
 	sb.append("}");
