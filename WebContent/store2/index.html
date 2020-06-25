@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>맛집찾기2</title>
 <style type="text/css">
 body {
 	margin: 0;
@@ -35,7 +35,7 @@ body {
 #listArea{
 	width: 600px;
 	height: 300px;
-	overflow: scroll;
+	overflow-y: scroll;
 }
 iframe{
 	width: 600px;
@@ -50,13 +50,15 @@ table, td {
 }
 </style>
 <script type="text/javascript">
-var map;
-function loadData() {
+//var map;
+var json = {
+		"storeList":[]
+}; //iframe이 접근할 수 있게 하기 위함
+addEventListener("load", function() {	
 	//비동기통신으로, 아이콘 가져오기!
-	
 	getIcons();
-	//initMap();
-}
+	getList();
+});
 
 function getIcons() {
 	var httpObj = new XMLHttpRequest(); //비동기 통신 객체
@@ -73,6 +75,15 @@ function getIcons() {
 				op.value = icon.icons_id;
 				var icons_id = document.getElementById("icons_id");
 				icons_id.add(op); //select에 option을 동적으로 부착!
+			}
+			
+			for (var i=0; i<json.iconsList.length; i++) {
+				var icon = json.iconsList[i];
+				var op = document.createElement("option");
+				op.text = icon.title;
+				op.value = icon.icons_id;
+				var icons_id2 = document.getElementById("icons_id2");
+				icons_id2.add(op); //select에 option을 동적으로 부착!			
 			}
 		}
 	}
@@ -114,12 +125,11 @@ function getList() {
 	httpObj.onreadystatechange = function() {
 		if(this.readyState == 4 && this.status == 200) {
 			console.log(this.responseText);
-			var json = JSON.parse(this.responseText);
+			json = JSON.parse(this.responseText);
 			printData(json);
-			//printMarker(json);
 			//지도 프레임을 새로고침하자!
-			//window.target="mapFrame";
-			//location.href="http://naver.com";
+			var mapFrame = document.getElementById("mapFrame");
+			mapFrame.src="/store2/map.html";
 		}
 	};
 	httpObj.open("GET", "/store2/list.jsp", true);
@@ -141,9 +151,9 @@ function printData(json) {
 	tag += "</tr>";
 	for (var i=0; i<json.storeList.length; i++) {
 		var obj = json.storeList[i];
-		tag += "<tr onMouseOver=\"this.style.background='#fcc'\" onMouseOut=\"this.style.background=''\">";
+		tag += "<tr onClick='getDetail("+obj.store_id+")' style='cursor:pointer;' onMouseOver=\"this.style.background='#fcc'\" onMouseOut=\"this.style.background=''\">";
 		tag += "<td>"+obj.store_id+"</td>";
-		tag += "<td><a onClick='show("+obj.store_id+")' style='cursor:pointer;color:red'>"+obj.name+"</a></td>";
+		tag += "<td><a style='color:red'>"+obj.name+"</a></td>";
 		tag += "<td>"+obj.addr+"</td>";
 		tag += "<td><img src='/icons/"+obj.filename+"' width='50px'></td>";
 		tag += "<td>"+obj.lati+"</td>";
@@ -170,14 +180,82 @@ function mapMarker(obj) {
 	marker.setMap(map);//마커를 지정한 맵에 적용!!
 }
 
-function initMap() {
-	//alert("맵 로드할거야");
-	var mapProp= {
-	  center:new google.maps.LatLng(37.571252, 126.989102),
-	  zoom:10,
+function getDetail(store_id) {
+	var httpObj = new XMLHttpRequest();
+	httpObj.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var json = JSON.parse(this.responseText);
+			showData(json);
+		}
 	};
-	map = new google.maps.Map(document.getElementById("mapArea"),mapProp);
+	httpObj.open("get", "/store2/content.jsp?store_id="+store_id, true);
+	httpObj.send();
 }
+
+function showData(json) {
+	var store_id = document.getElementById("store_id");
+	var name = document.getElementById("name2");
+	var addr = document.getElementById("addr2");
+	var lati = document.getElementById("lati2");
+	var longi = document.getElementById("longi2");
+	var icons_id = document.getElementById("icons_id2");
+	var memo = document.getElementById("memo2");
+	
+	store_id.value = json.store_id;
+	name.value = json.name;
+	addr.value = json.addr;
+	lati.value = json.lati;
+	longi.value = json.longi;
+	icons_id.value = json.icons_id;
+	memo.value = json.memo;
+}
+
+function del() {
+	var store_id = document.getElementById("store_id").value;
+	
+	var httpObj = new XMLHttpRequest();
+	httpObj.open("get", "/store2/delete.jsp?store_id="+store_id, true);
+	
+	httpObj.onreadystatechange = function() {
+		if(this.readyState == 4 && this.status == 200) {
+			//alert("서버가 전송한 메세지 : "+ this.responseText);
+			if (this.responseText == 1) {
+				alert("삭제성공");
+			}
+			else {
+				alert("삭제실패");				
+			}
+		}
+	}
+	httpObj.send();
+}
+
+function edit() {
+	var httpObj = new XMLHttpRequest();
+	httpObj.open("post", "/store2/edit.jsp", true);
+	httpObj.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	
+	var store_id = document.getElementById("store_id").value;
+	var name = document.getElementById("name2").value;
+	var addr = document.getElementById("addr2").value;
+	var lati = document.getElementById("lati2").value;
+	var longi = document.getElementById("longi2").value;
+	var icons_id = document.getElementById("icons_id2").value;
+	var memo = document.getElementById("memo2").value;
+	
+	httpObj.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			if (this.responseText == 1) {
+				alert("수정성공");
+			}
+			else {
+				alert("수정실패");				
+			}
+		}
+	}
+	httpObj.send("store_id="+store_id+"&name="+name+"&addr="+addr+"&lati="+lati+"&longi="+longi+"&icons_id="+icons_id+"&memo="+memo);
+}
+
 </script>
 </head>
 <body>
@@ -195,27 +273,22 @@ function initMap() {
 		
 		<div class="contentArea">
 			<div id="listArea"></div>
-			<iframe src="/store2/map.html" frameborder="0" name="mapFrame"></iframe>
+			<iframe src="/store2/map.html" frameborder="0" name="mapFrame" id="mapFrame"></iframe>
 		</div>
 		
 		<div class="detailArea">
-			<input type="text" name="name" placeholder="맛집명">
-			<input type="text" name="name" placeholder="주소">
-			<input type="text" name="name" placeholder="위도">
-			<input type="text" name="name" placeholder="경도">
-			<input type="text" name="name" placeholder="이미지">
-			<select>
-				<option>핀</option>
-				<option>스마일</option>
-				<option>가게</option>
-				<option>도서관</option>
+			<input type="hidden" id="store_id">
+			<input type="text" id="name2" placeholder="맛집명">
+			<input type="text" id="addr2" placeholder="주소">
+			<input type="text" id="lati2" placeholder="위도">
+			<input type="text" id="longi2" placeholder="경도">
+			<select id="icons_id2">
 			</select>
-			<textarea type="text" name="name" placeholder="설명" rows="5" cols="22"></textarea>
-			<button>등록</button>
-			<button>목록</button>
+			<textarea type="text" id="memo2" placeholder="설명" rows="5" cols="22"></textarea>
+			<button onclick="edit()">수정</button>
+			<button onclick="del()">삭제</button>
 		</div>
 	</div>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMEKY2uyaqvfsq-5QrhEYDOCnogkkXl0U&callback=loadData"></script>
 </body>
 </html>
 
