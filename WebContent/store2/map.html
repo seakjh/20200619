@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>map</title>
+</head>
+<style>
+body {
+	margin: 0;
+	font-size: 9pt;
+}
+#mapArea{
+	width: 600px;
+	height: 500px;
+}
+</style>
+<script type="text/javascript">
+//var map;
+var json; //부모컨테이너 html문서의 전역변수를 이 변수로 가져오기만 하면 성공
+function initMap() {
+	//alert("맵 로드할거야");
+	var mapProp= {
+	  center:new google.maps.LatLng(37.571252, 126.989102),
+	  zoom:10,
+	};
+	map = new google.maps.Map(document.getElementById("mapArea"),mapProp);
+}
+//지도에 아이콘 오버레이(덮어쓰기)하자 0625방식
+function printMarker(json) {
+	for (var i=0; i<json.storeList.length; i++) {
+		var obj = json.storeList[i];
+		var marker = new google.maps.Marker({
+			position: new google.maps.LatLng(obj.lati, obj.longi),
+			animation:google.maps.Animation.BOUNCE,
+			icon:{
+			    url: "/icons/"+obj.filename, // url
+			    scaledSize: new google.maps.Size(30, 30), // scaled size
+			}
+		});
+		marker.setMap(map);
+	}
+}
+</script>
+<body>
+<div id="mapArea"></div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMEKY2uyaqvfsq-5QrhEYDOCnogkkXl0U&callback=initMap"></script>
+</body>
+</html>

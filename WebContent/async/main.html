@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SPA 만들기</title>
+<style type="text/css">
+body {
+	margin: 0;
+}
+.wrapper {
+	width: 1000px;
+	height: 600px;
+	margin: auto;
+	border: 2px solid #f00;
+}
+.inputArea{
+	width: 20%;
+	height: 600px;
+	background: #ff9;
+	float: left;
+}
+.listArea{
+	width: 60%;
+	height: 600px;
+	background: #9ff;
+	float: left;
+}
+.detailArea{
+	width: 20%;
+	height: 600px;
+	background: #fca;
+	float: left;
+}
+
+div {
+	text-align: center;
+}
+
+table, td {
+	border: 1px solid #000;
+	border-collapse: collapse;
+}
+
+</style>
+<script type="text/javascript">
+/*
+AJAX란? JS를 이용한 비동기통신 기술을 의미하는데,
+순수한 자바스크립트를 이용하는 방법과 JQuery를 이용하는 방법이 있다.
+- 장점 : 새로고침 없는 어플리케이션 제작이 가능!!
+		마치 응용프로그램 수준의 Rich한 UI를 제공할 수 있다.
+ */
+function getList() {
+	//서버측에 요청을 시도하되, 동기방식으로 시도하자!
+	//location.href="/async/data.jsp"; //get방식
+	
+	//비동기 요청을 시도하려면, ajax의 XMLHttpRequest객체 사용
+	var xmlRequest = new XMLHttpRequest();
+	
+	//비동기 객체의 현재 상태를 알수있는 이벤트핸들러를 이용하면 통신의 종료시점등을 알고 프로그램에 적용가능함
+	xmlRequest.onreadystatechange = function() {
+		/*
+		0: request not initialized : 요청준비상태(관심x)
+		1: server connection established  (서버에 접속함)x
+		2: request received (요청서버에 도달)x
+		3: processing request (요청을 처리중)x
+		4: request finished and response is ready (요청완료) 관심ㅇ
+		*/
+		if(this.readyState == 4 && this.status == 200) {
+			//alert("서버로부터 응답을 받음" + this.responseText);
+			var json = JSON.parse(this.responseText);
+			//alert(json.storeList[0].name);
+			printData(json);
+		}
+	};
+	
+	//통신준비
+	xmlRequest.open("get", "/async/data.jsp", true);
+	xmlRequest.send();
+}
+//서버로부터 응답받은 json 문자열을 이용하여 화면출력!
+function printData(json) {
+	var listArea = document.querySelector(".listArea");
+	var tag="<table width=\"100%\">";
+	tag += "<tr>";
+	tag += "<td>No</td>";
+	tag += "<td>가게명</td>";
+	tag += "<td>연락처</td>";
+	tag += "<td>지역</td>";
+	tag += "<td>대표메뉴</td>";
+	tag += "</tr>";
+	for (var i=0; i<json.storeList.length; i++) {
+		var obj = json.storeList[i];
+		tag += "<tr>";
+		tag += "<td>"+obj.number+"</td>";
+		tag += "<td><a onClick='show("+obj.number+")' style='cursor:pointer;color:red'>"+obj.name+"</a></td>";
+		tag += "<td>"+obj.tel+"</td>";
+		tag += "<td>"+obj.addr+"</td>";
+		tag += "<td>"+obj.food+"</td>";
+		tag += "</tr>";
+	}
+	tag += "</table>";
+	listArea.innerHTML=tag;
+}
+function regist() {
+	var xmlRequest = new XMLHttpRequest();
+	xmlRequest.open("POST", "/async/regist.jsp", true);
+	//post방식의 경우 body구성
+	xmlRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	var name = document.getElementById("name").value;
+	var tel = document.getElementById("tel").value;
+	var addr = document.getElementById("addr").value;
+	var food = document.getElementById("food").value;
+	
+	xmlRequest.send("name="+name+"&tel="+tel+"&addr="+addr+"&food="+food);
+}
+function show(hotplace_id) {
+	//alert(hotplace_id);
+	var xmlRequest = new XMLHttpRequest();
+	xmlRequest.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var json = JSON.parse(this.responseText);
+			showData(json);
+		}
+	};
+	xmlRequest.open("get", "/async/content.jsp?hotplace_id="+hotplace_id, true);
+	xmlRequest.send();
+	
+}
+function showData(json) {
+	//alert(json.storeList.name);
+	//var detailArea = document.querySelector(".detailArea");
+	var detail_hotplace_id = document.getElementById("detail_hotplace_id");
+	var h_name = document.getElementById("h_name");
+	var h_tel = document.getElementById("h_tel");
+	var h_addr = document.getElementById("h_addr");
+	var h_food = document.getElementById("h_food");
+	
+	detail_hotplace_id.value = json.storeList.number;
+	h_name.value = json.storeList.name;
+	h_tel.value = json.storeList.tel;
+	h_addr.value = json.storeList.addr;
+	h_food.value = json.storeList.food;
+}
+function edit() {
+	var xmlRequest = new XMLHttpRequest();
+	xmlRequest.open("post", "/async/edit.jsp", true);
+	
+	xmlRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	var detail_hotplace_id = document.getElementById("detail_hotplace_id").value;
+	var h_name = document.getElementById("h_name").value;
+	var h_tel = document.getElementById("h_tel").value;
+	var h_addr = document.getElementById("h_addr").value;
+	var h_food = document.getElementById("h_food").value;
+	//alert(detail_hotplace_id);
+	xmlRequest.send("detail_hotplace_id="+detail_hotplace_id+"&name="+h_name+"&tel="+h_tel+"&addr="+h_addr+"&food="+h_food);
+
+}
+function del() {
+	var detail_hotplace_id = document.getElementById("detail_hotplace_id").value;
+	//alert(detail_hotplace_id);
+	var xmlRequest = new XMLHttpRequest();
+	xmlRequest.open("get", "/async/delete.jsp?hotplace_id="+detail_hotplace_id, true);
+	xmlRequest.send();
+
+}
+</script>
+</head>
+<body>
+	<div class="wrapper">
+		<div class="inputArea">
+			<input type="hidden" id="hotplace_id">
+			<input type="text" id="name" placeholder="가게명" value="">
+			<input type="text" id="tel" placeholder="연락처">
+			<input type="text" id="addr" placeholder="지역">
+			<input type="text" id="food" placeholder="대표메뉴">
+			<button onClick="regist()">등록</button>
+			<button onClick="getList()">목록</button>
+		</div>
+		<div class="listArea" align="center">
+			<!--
+			<table width="100%">
+				<tr>
+					<td>No</td>
+					<td>가게명</td>
+					<td>연락처</td>
+					<td>지역</td>
+					<td>대표메뉴</td>
+				</tr>
+			</table>
+			-->
+		</div>
+		<div class="detailArea">
+			<input type="hidden" id="detail_hotplace_id">
+			<input type="text" placeholder="가게명" id="h_name">
+			<input type="text" placeholder="연락처" id="h_tel">
+			<input type="text" placeholder="지역" id="h_addr">
+			<input type="text" placeholder="대표메뉴" id="h_food">
+			<button onClick="edit()">수정</button>
+			<button onClick="del()">삭제</button>
+		</div>
+	</div>
+</body>
+</html>

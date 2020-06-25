@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>아파치 업로드를 이용한 테스트</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(function() {
+	$("button").on("click", function() {
+		send();
+	});
+});
+
+function send() {
+	//post방식 전송시, 파일데이터가 포함될 경우 반드시 form encoding type 속성에는
+	//multipart/form-data 가 지정되어있어야 한다. http전송시 규약
+	$("form").attr({
+		"method":"post",
+		"action":"/upload",
+		"enctype":"multipart/form-data"
+	});
+	$("form").submit(); //post요청
+}
+</script>
+
+</head>
+<body>
+	<form>
+		<input type="text" name="title" placeholder="제목">
+		<input type="text" name="writer" placeholder="작성자">
+		<input type="file" name="myFile">
+	</form>
+	<button>파일전송</button>
+</body>
+</html>
