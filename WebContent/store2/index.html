@@ -285,7 +285,7 @@ function uploadJson() {
 	httpObj.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			if (this.responseText == 1) {
-				alert("성공?");
+				alert("Json 등록 성공");
 				//목록나오게
 				getList();
 				
@@ -300,6 +300,62 @@ function uploadJson() {
 	};
 	httpObj.open("post", "/upload/json", true);
 	httpObj.send(formData);   
+}
+
+function uploadExcel() {
+   	var fileForm = document.getElementById("fileForm");
+   	var formData = new FormData(fileForm);
+   
+   	formData.append("mf", document.getElementById("mf"));
+   
+   	//비동기 전송
+	var httpObj = new XMLHttpRequest();
+	httpObj.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			if (this.responseText == 1) {
+				alert("엑셀 등록 성공");
+				//목록나오게
+				getList();
+				
+				//지도나오게
+				var mapFrame = document.getElementById("mapFrame");
+				mapFrame.src="/store2/map.html";
+			}
+			else {
+				alert("업로드 실패!");				
+			}
+		}
+	};
+	httpObj.open("post", "/upload/excel", true);
+	httpObj.send(formData); 
+}
+
+function uploadXml() {
+   	var fileForm = document.getElementById("fileForm");
+   	var formData = new FormData(fileForm);
+   
+   	formData.append("mf", document.getElementById("mf"));
+   
+   	//비동기 전송
+	var httpObj = new XMLHttpRequest();
+	httpObj.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			if (this.responseText == 1) {
+				alert("xml 등록 성공");
+				//목록나오게
+				getList();
+				
+				//지도나오게
+				var mapFrame = document.getElementById("mapFrame");
+				mapFrame.src="/store2/map.html";
+			}
+			else {
+				alert("업로드 실패!");				
+			}
+		}
+	};
+	httpObj.open("post", "/upload/xml", true);
+	httpObj.send(formData); 
 }
 </script>
 </head>

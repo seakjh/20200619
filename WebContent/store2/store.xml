@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storeList>
+	<store>
+		<name>삼겹살무한</name>
+		<addr>한국</addr>
+		<lati>37.5</lati>
+		<longi>127.1</longi>
+		<memo>삼겹살</memo>
+		<icons_id>1</icons_id>
+	</store>
+	<store>
+		<name>돈까스무한</name>
+		<addr>한국</addr>
+		<lati>37.5</lati>
+		<longi>127.2</longi>
+		<memo>돈까스</memo>
+		<icons_id>2</icons_id>
+	</store>
+	<store>
+		<name>치키치킨</name>
+		<addr>한국</addr>
+		<lati>37.5</lati>
+		<longi>127.3</longi>
+		<memo>치킨먹는닭</memo>
+		<icons_id>4</icons_id>
+	</store>
+</storeList>

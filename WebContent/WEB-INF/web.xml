@@ -37,4 +37,22 @@
   	<servlet-name>jsonUploadServlet</servlet-name>
   	<url-pattern>/upload/json</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+  	<servlet-name>ExcelServlet</servlet-name>
+  	<servlet-class>com.study.controller.store.ExcelServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>ExcelServlet</servlet-name>
+  	<url-pattern>/upload/excel</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+  	<servlet-name>XmlServlet</servlet-name>
+  	<servlet-class>com.study.controller.store.XmlServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>XmlServlet</servlet-name>
+  	<url-pattern>/upload/xml</url-pattern>
+  </servlet-mapping>
 </web-app>
